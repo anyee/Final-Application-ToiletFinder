@@ -1,0 +1,78 @@
+
+.main .header{position: relative;height: 50px;background-color: #447cce;color: #fff;text-align: center;line-height: 50px;}
+.main .header span.title{font-size: 18px;}
+.main .header a.header-btn{display: inline-block;width: 30px;height: 30px;position: relative;top: 10px;}
+.main .header a.list{left: 10px;background-image: url('../images/list.png');background-size: 100% 100%;background-repeat: no-repeat;}
+.main .header a.add{right: 10px;background-image: url('../images/add.png');background-size: 100% 100%;background-repeat: no-repeat;}
+.main .header .controls{height: 30px; width: 50%;}
+
+.main .center{width: 100%;}
+
+
+.main .data{position: relative;padding: 10px 15px;width: calc(100% - 30px);height: 90px;}
+.main .buttom{position: fixed;bottom: 0px;height: 90px;padding: 10px 15px;width: calc(100% - 30px);}
+.main .data .top{position: relative;height: 50px;}
+.main .data .top span{position: relative;display: block;}
+.main .data .top .name{color: #c6c6c6;font-size: 17px;}
+.main .data .top .distance{font-size: 15px;color: #447cce;text-indent: 20px;margin-top: 10px;background-image: url('../images/address.png');background-size: 17px;background-repeat: no-repeat;}
+.main .data .top .edit-btn{height: 30px;width: 30px;position: absolute;right: 10px;top: 10px;background-image: url('../images/edit.png');background-size: 100% 100%;background-repeat: no-repeat;background-color: #fff;}
+
+.main .data .other{position: relative;margin-top: 10px;}
+.main .data .other a{display: inline-block;width: 20px;height: 20px;margin: 0px 3px;}
+.main .data .other a.star{background-image: url('../images/star.png');background-size: 100% 100%;background-repeat: no-repeat;}
+.main .data .other a.btn{border-radius:20px;line-height: 20px;border:1px solid #beda7c;color: #acd23a;width: auto;padding: 3px 10px;margin-top: -4px;}
+.main .data .other a.deformity{width: 20px;background-image: url('../images/deformity.png');background-size: 25px 25px;background-repeat: no-repeat;background-position: center;}
+
+.datalist .data{cursor: pointer;}
+
+
+.login,.search{position: fixed;height: 100%;width: 100%;top: 0px;left: 0px;z-index: 999;background-color: #447cce;}
+.login h1,.search h1{text-align: center;margin-top: 150px;color: #fff;}
+.login p input,.search p input{width: 80%;height: 30px; color: #447cce;margin: 15px auto;display: block;text-align: center;}
+.login p button,.search p button{display: block;margin: 20px auto;background-color: #fff;color: #447cce;padding: 5px 15px;}
+.login .bottom{position: absolute;bottom: 0px;height: 50px;width: 100%;}
+.login .bottom a{display: inline-block;text-align: center;width: 49%;line-height: 50px;color: #fff;height: 100%;font-size: 18px;}
+
+
+.controls {
+  margin-top: 10px;
+  border: 1px solid transparent;
+  border-radius: 2px 0 0 2px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  height: 32px;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#pac-input {
+  background-color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  margin-left: 12px;
+  padding: 0 11px 0 13px;
+  text-overflow: ellipsis;
+  width: 300px;
+}
+
+#pac-input:focus {
+  border-color: #4d90fe;
+}
+
+.pac-container {
+  font-family: Roboto;
+}
+
+#type-selector {
+  color: #fff;
+  background-color: #4d90fe;
+  padding: 5px 11px 0px 11px;
+}
+
+#type-selector label {
+  font-family: Roboto;
+  font-size: 13px;
+  font-weight: 300;
+}
+

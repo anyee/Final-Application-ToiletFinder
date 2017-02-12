@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <meta charset="utf-8">
+  <title>Google maps</title>
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <link rel="stylesheet" type="text/css" href="./css/main.css">
+  <script type="text/javascript" src="./js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCV_y77p_CW0BOHBVblCGAO9dbeLqIxrTg&sensor=false&libraries=geometry"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCV_y77p_CW0BOHBVblCGAO9dbeLqIxrTg&libraries=places&callBack" async defer></script>
+  <script type="text/javascript">
+    var longitude = 0;
+    var latitude = 0;
+    var lock = true;
+    var search_word = '';
+    function getLocation(){
+        var options={
+           enableHighAccuracy:true,
+           maximumAge:1000
+       }
+       if(navigator.geolocation){
+           navigator.geolocation.watchPosition(onSuccess);
+       }else{}
+  }
+    function onSuccess(position){
+        longitude =position.coords.longitude;
+        latitude = position.coords.latitude;
+        if(lock){
+          initMap();
+          lock
+        }
+    }
+    function onError(error){
+      switch(error.code){
+          case 1:
+            alert("Refuse location");
+            break;
+          case 2:
+            alert("Location is temporarily unavailable");
+            break;
+          case 3:
+            alert("Get information timeout");
+            break;
+          case 4:
+            alert("unknown mistake");
+          break;
+        }
+    }
+    window.onload=getLocation;
+    </script>
+    <script>
+    var user;
+    var map;
+    var pyrmont;
+    var myMarker;
+    var infowindow;
+    var image = './images/wc.png';
+    var dataList;
+
+    function initMap() {
+	    pyrmont = {lat: latitude, lng: longitude};
+
+	    map = new google.maps.Map(document.getElementById('map'), {
+	      	center: pyrmont,
+	        zoom: 15
+	    });
+
+	    infowindow = new google.maps.InfoWindow();
+	    var service = new google.maps.places.PlacesService(map);
+	    service.nearbySearch({
+	        location: pyrmont,
+	        radius: 500,
+	        types: ['bathroom']
+	    }, callback);
+	    myMarker = new google.maps.Marker({
+	        map: map,
+	        position: pyrmont,
+	        icon:image
+	    });
+	    /* search start */
+	    var input = document.getElementById('pac-input');
+		  var searchBox = new google.maps.places.SearchBox(input);
+		  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+		  // Bias the SearchBox results towards current map's viewport.
+		  map.addListener('bounds_changed', function() {
+		    searchBox.setBounds(map.getBounds());
+		  });
+
+		  var markers = [];
+		  // Listen for the event fired when the user selects a prediction and retrieve
+		  // more details for that place.
+		  searchBox.addListener('places_changed', function() {
+		    var places = searchBox.getPlaces();
+
+		    if (places.length == 0) {
+		      return;
+		    }
+
+		    // Clear out the old markers.
+		    markers.forEach(function(marker) {
+		      marker.setMap(null);
+		    });
+		    markers = [];
+
+		    // For each place, get the icon, name and location.
+		    var bounds = new google.maps.LatLngBounds();
+		    places.forEach(function(place) {
+		      var icon = {
+		        url: place.icon,
+		        size: new google.maps.Size(71, 71),
+		        origin: new google.maps.Point(0, 0),
+		        anchor: new google.maps.Point(17, 34),
+		        scaledSize: new google.maps.Size(25, 25)
+		      };
+
+		      // Create a marker for each place.
+		      markers.push(new google.maps.Marker({
+		        map: map,
+		        icon: icon,
+		        title: place.name,
+		        position: place.geometry.location
+		      }));
+
+		      if (place.geometry.viewport) {
+		        // Only geocodes have viewport.
+		        bounds.union(place.geometry.viewport);
+		      } else {
+		        bounds.extend(place.geometry.location);
+		      }
+		    });
+		    map.fitBounds(bounds);
+		  });
+		  /* search end */
+    }
+
+    function callback(results, status) {
+      dataList = results;
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        console.log("is run");
+        for (var i = 0; i < results.length; i++) {
+          createMarker(results[i],i);
+        }
+        setListData();
+      }
+    }
+
+    function createMarker(place,i) {
+        var placeLoc = place.geometry.location;
+        var marker = new google.maps.Marker({
+          map: map,
+          position: place.geometry.location,
+          icon:image
+        });
+        var meters = google.maps.geometry.spherical.computeDistanceBetween(myMarker.getPosition(), marker.getPosition());
+        dataList[i]['meters'] = meters;
+        dataList[i]['position'] = marker.getPosition();
+        //console.log(place.name+" near me  "+meters+"meters");
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent(place.name);
+          infowindow.open(map, this);
+        });
+    }
+    function setListData(){
+      var html='';
+      for (var i = dataList.length - 1; i >= 0; i--) {
+        html+='<div class="data" data-value= '+JSON.stringify(dataList[i]['position'])+'>';
+        html+='<div class="top">';
+        html+='<span class="name">'+dataList[i]['name']+'</span>';
+        html+='<span class="distance">'+parseInt(dataList[i]['meters'])+' meters</span>';
+        html+='<button type="button" class="edit-btn"></button>';
+        html+='</div>';
+        html+='<div class="other">';
+        html+='<a class="fl star"></a>';
+        html+='<a class="fl star"></a>';
+        html+='<a class="fl star"></a>';
+        html+='<a class="fl star"></a>';
+        html+='<a class="fl star"></a>';
+        html+='<a class="fr btn deformity"></a>';
+        html+='<a class="fr btn">FREE</a>';
+        html+='</div>';
+        html+='</div>';
+      }
+      $(".datalist").html(html);
+    }
+    </script>
+</head>
+<body>
+<div class="login">
+	<h1>Toilet Finder</h1>
+	<p>
+		<input type="" id="email_value" name="email" placeholder="UserEmail">
+		<input type="" id="pass_value" name="password" placeholder="Password">
+		<!-- <button type="button">DONE</button> -->
+	</p>
+	<div class="bottom">
+		<a href="javascript:;" id="login">Login</a>
+		<a href="javascript:;" id="register">Register</a>
+	</div>
+</div><!--
+<div class="search hidden">
+	<h1>Search Toilet</h1>
+	<p>
+		<input type="" id="search_words" name="search_words" placeholder="search words">
+		<button type="button">DONE</button>
+	</p>
+</div> -->
+<div class="main hidden">
+  <div class="header">
+    <a class="fl header-btn list" href="javascript:;"></a>
+    <span class="title">Toilet Finder</span>
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+    <a class="fr header-btn add searchBtn" href="javascript:;"></a>
+  </div>
+  <div class="center" style="height: 400px;">
+    <div id="map" style="height: 100%;width: 100%;border:0px;margin: 0px;padding: 0px;"></div>
+  </div>
+  <div class="data buttom">
+    <div class="top">
+      <span class="name">William Road</span>
+      <span class="distance">98 meters</span>
+      <button type="button" class="edit-btn"></button>
+    </div>
+    <div class="other">
+      <a class="fl star"></a>
+      <a class="fl star"></a>
+      <a class="fl star"></a>
+      <a class="fl star"></a>
+      <a class="fl star"></a>
+      <a class="fr btn deformity"></a>
+      <a class="fr btn">FREE</a>
+    </div>
+  </div>
+</div>
+<div class="main datalist">
+  <p class="centerText pd-20" style="color:#c3c3c3;">Loading……</p>
+</div>
+</body>
+<script type="text/javascript">
+$(document).on("click",".datalist .data",function(){
+	$(".main").removeClass("hidden");
+	$(".datalist").addClass("hidden");
+	var name = $(this).find("span.name").html();
+	var distance = $(this).find("span.distance").html();
+	$(".buttom").find("span.name").html(name);
+	$(".buttom").find("span.distance").html(distance);
+	var location = JSON.parse($(this).attr("data-value"));
+	var cityCircle = new google.maps.Circle({
+	    strokeColor: '#FF0000',
+	    strokeOpacity: 0.8,
+	    strokeWeight: 2,
+	    fillColor: '#FF0000',
+	    fillOpacity: 0.35,
+	    map: map,
+	    center: {lat: location.lat, lng: location.lng},
+	    radius: Math.sqrt(2) * 100
+	});
+});
+$(".list").click(function(){
+  $(".main").addClass("hidden");
+  $(".datalist").removeClass("hidden");
+});
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyB-drkbkRfhKf3DXNwSveA1hQmxWcrkASc",
+    authDomain: "wc-maps.firebaseapp.com",
+    databaseURL: "https://wc-maps.firebaseio.com",
+    storageBucket: "wc-maps.appspot.com",
+    messagingSenderId: "666109634866"
+  };
+  firebase.initializeApp(config);
+</script>
+<script type="text/javascript">
+	$("#register").click(function(){
+		var email  = $("#email_value").val();
+		var pass = $("#pass_value").val();
+		if(email!=null&&pass!=""){
+			user = firebase.auth().createUserWithEmailAndPassword(email, pass).catch(function(error) {
+				var errorCode = error.code;
+				var errorMessage = error.message;
+				alert("Error("+errorCode+"):"+errorMessage);
+				console.log(errorMessage);
+			});
+		}else{
+			alert("'Email' and 'Password' Not allowed to empty！");
+		}
+	});
+	$("#login").click(function(){
+		var email  = $("#email_value").val();
+		var pass = $("#pass_value").val();
+		if(email!=null&&pass!=""){
+			user = firebase.auth().signInWithEmailAndPassword(email, pass).then(function(){
+				alert("login success");
+				$(".login").hide();
+			},function(error) {
+				var errorCode = error.code;
+				var errorMessage = error.message;
+				alert("Error("+errorCode+"):"+errorMessage);
+			});
+		}else{
+			alert("'Email' and 'Password' Not allowed to empty！");
+		}
+	});
+</script>
+<script type="text/javascript">
+	$(".searchBtn").click(function(){
+		var search_words  = $("#search_words").val();
+		if(search_words!=null){
+			search_word = search_words;
+			initMap();
+		}else{
+			alert("Search words Not allowed to empty！");
+		}
+	});
+</script>
+</html>

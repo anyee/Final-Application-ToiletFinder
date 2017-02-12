@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+    <script type="text/javascript">
+    var longitude = 0;
+    var latitude = 0;
+    var lock = true;
+      function getLocation(){
+               var options={
+                   enableHighAccuracy:true,
+                   maximumAge:1000
+               }
+               if(navigator.geolocation){
+                   navigator.geolocation.watchPosition(onSuccess);
+               }else{
+                   //browser not support geolocation
+               }
+           }
+
+           //if sucess
+           function onSuccess(position){
+              longitude =position.coords.longitude;
+              latitude = position.coords.latitude;
+                if(lock){
+                  initMap();
+                  lock
+              }
+           }
+           function onError(error){
+             switch(error.code){
+          case 1:
+            alert("Refuse location");
+            break;
+          case 2:
+            alert("Location is temporarily unavailable");
+            break;
+          case 3:
+            alert("Get information timeout");
+            break;
+          case 4:
+            alert("unknown mistake");
+          break;
+               }
+           }
+           window.onload=getLocation;
+    </script>
+    <script>
+    var map;
+    var infowindow;
+
+    function initMap() {
+      console.log(latitude,longitude);
+      var pyrmont = {lat: latitude, lng: longitude};
+
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: pyrmont,
+        zoom: 15
+      });
+
+      infowindow = new google.maps.InfoWindow();
+
+      var service = new google.maps.places.PlacesService(map);
+      service.nearbySearch({
+        location: pyrmont,
+        radius: 500,
+        types: ['bathroom']
+      }, callback);
+    }
+
+    function callback(results, status) {
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+          createMarker(results[i]);
+        }
+      }
+    }
+
+    function createMarker(place) {
+      var image = './images/wc.png';
+      var placeLoc = place.geometry.location;
+      var marker = new google.maps.Marker({
+        map: map,
+        position: place.geometry.location,
+        icon:image
+      });
+
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(place.name);
+        infowindow.open(map, this);
+      });
+    }
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCV_y77p_CW0BOHBVblCGAO9dbeLqIxrTg&libraries=places&callback=" async defer></script>
+  </body>
+</html>
